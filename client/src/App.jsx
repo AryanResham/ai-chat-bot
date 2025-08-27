@@ -1,15 +1,22 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
-import LoginCard from "./components/LoginCard";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import LandingPage from "./components/LandingPage";
+import ChatInterface from "./components/ChatInterface";
 function App() {
-  const [count, setCount] = useState(0);
-
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <LandingPage />,
+    },
+    {
+      path: "/chat",
+      element: <ChatInterface />,
+    },
+  ]);
   return (
     <div>
-      <LoginCard />
-      <h1 className="text-3xl font-bold underline">Hello world!</h1>
+      <LandingPage />
+      <ChatInterface />
     </div>
   );
 }
