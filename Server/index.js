@@ -7,6 +7,7 @@ import connectDB from './connection.js';
 
 import userRoutes from "./routes/user.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import convoRoutes from "./routes/conversation.routes.js";
 
 connectDB();
 const app = express();
@@ -20,7 +21,9 @@ app.get('/', (req, res) => {
   res.send('Hello World')
 })
 app.use('/api/user', userRoutes);
-app.use('/api/auth', authRoutes)
+app.use('/api/auth', authRoutes);
+app.use('/api/conversations', convoRoutes);
+
 
 
 app.listen(process.env.PORT, () => {

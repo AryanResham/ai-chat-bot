@@ -1,5 +1,6 @@
-import jwt from "jsonwebtoken";
 import User from '../models/user.models.js';
+import Message from "../models/message.models.js";
+import Conversation from '../models/conversation.models.js';
 import RefreshToken from "../models/refreshTokens.models.js";
 import {v4} from 'uuid';
 import {  
@@ -39,4 +40,21 @@ async function createUser(req, res) {
     }
 }
 
-export { createUser };
+async function fetchChatDetails(req, res) {
+    const token = req.cookies?.accessToken;
+    const userId = req.user.userId;
+    if (!token || !userId) {
+        return res.status(401).json({error: "unauthenticated"});
+    }
+
+    // Fetch chat details from the database
+    try {
+        const chatDetails = await Conversation.find({ userId });
+        return res.status(200).json({ chatDetails });
+    } catch (error) {
+        return res.status(500).json({ error: "Internal server error" });
+    }
+
+}
+
+export { createUser, fetchChatDetails };

@@ -2,11 +2,11 @@ import jwt from "jsonwebtoken";
 
 function authenticateToken(req, res, next){
     try{
-        const token = req.cookie?.token;
+        const token = req.cookies?.accessToken;
         if(!token){
             return res.status(401).json({error: "unauthorized"});
         }
-        const data = jwt.verify(token. process.env.JWT_SECRET);
+        const data = jwt.verify(token, process.env.JWT_SECRET);
         req.user = {userId: data.subject, email: data.email || null};
         next();
     }
@@ -15,4 +15,4 @@ function authenticateToken(req, res, next){
     }
 }
 
-export default {authenticateToken}
+export {authenticateToken}

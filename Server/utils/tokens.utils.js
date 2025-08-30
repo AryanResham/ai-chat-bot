@@ -44,7 +44,7 @@ function baseCookie() {
 }
 
 function setAccessCookie(res, token){
-    res.cookie("token", token, {
+    res.cookie("accessToken", token, {
     ...baseCookie(),
     maxAge: 60 * 60 * 1000,
   });
@@ -58,7 +58,7 @@ function setRefreshCookie(res, token){
 }
 
 function clearAuthCookies(res) {
-  res.clearCookie("token", { ...baseCookie(), maxAge: 0 });
+  res.clearCookie("accessToken", { ...baseCookie(), maxAge: 0 });
   res.clearCookie("refreshToken", { ...baseCookie(), maxAge: 0 });
 }
 

@@ -11,4 +11,4 @@ const chatCompletion = await client.chat.completions.create({
   model: 'llama3-8b-8192',
 });
 
-console.log(chatCompletion.choices);
+console.log(chatCompletion.choices[0].message.content);

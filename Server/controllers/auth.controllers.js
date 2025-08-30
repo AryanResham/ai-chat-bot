@@ -16,7 +16,7 @@ import jwt from "jsonwebtoken";
 // Authenticate user: /api/auth/me
 async function authenticateMe(req, res){
     try{
-        const token = req.cookies?.token;
+        const token = req.cookies?.accessToken;
         if(!token){
             return res.status(401).json({error: "unauthenticated"});
         }
@@ -87,7 +87,6 @@ async function loginUser(req, res) {
     }
 }
 
-
 // Logout user: /api/auth/logout
 async function logoutUser(req, res) {
     const token = req.cookies?.refreshToken;
@@ -95,6 +94,9 @@ async function logoutUser(req, res) {
         return res.status(401).json({error: "unauthenticated"});
     }
     const data = verifyToken(token);
+    if(!data){
+        return res.status(401).json({error: "unauthenticated"});
+    }
     console.log(data);
 
     // mark all refresh token as revoked
@@ -103,7 +105,7 @@ async function logoutUser(req, res) {
         // clear cookies
         clearAuthCookies(res);
         console.log("jti - ", data.jti);
-        return res.status(201).json({ message: "Logout successful" });
+        return res.status(200).json({ message: "Logout successful" });
     }catch(err){
         return res.status(500).json({error: "Internal server error"});
     }
@@ -129,7 +131,7 @@ async function refreshAccessToken(req, res) {
         record.revoked = true;
 
         const newJti = v4();
-        record.replaceBy = newJti;
+        record.replacedBy = newJti;
         await record.save();
         console.log("record - ", record);
         const user = await User.findById(userId);
@@ -138,10 +140,10 @@ async function refreshAccessToken(req, res) {
         }
         // generate tokens
         const newAccessToken = signAccessToken(user);
-        const newRefreshToken = signRefreshToken(user, jti);
+        const newRefreshToken = signRefreshToken(user, newJti);
 
         // store RT in DB
-        const rt = new RefreshToken({ userId: user._id, jti, revoked: false });
+        const rt = new RefreshToken({ userId: user._id, jti: newJti, revoked: false });
         await rt.save();
         
         // set tokens in cookies
@@ -155,7 +157,7 @@ async function refreshAccessToken(req, res) {
     
     }
     catch(err){
-        return res.status(509).json({error: "Internal server error"});
+        return res.status(509).json({error: "Internal server error", details: err.message});
     }
 }
 
