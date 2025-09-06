@@ -1,5 +1,4 @@
 import Conversation from '../models/conversation.models.js';
-import Message from '../models/message.models.js';
 import { getChatCompletion } from '../utils/groqApi.utils.js';
 
 async function createNewConversation(req, res) {
@@ -26,7 +25,6 @@ async function createNewConversation(req, res) {
     return res.status(201).json({ message: 'New conversation created', conversation: newConversation });
 }
 
-
 async function handleUserMessage(req, res) {
     const conversationId = req.params.id;
     const message = req.body.message;
@@ -41,30 +39,13 @@ async function handleUserMessage(req, res) {
         if (!convo) {
             return res.status(404).json({ error: 'Conversation not found' });
         }
-        // create user message
-        const userMessage = new Message({
-            conversationId: conversationId,
-            role: "user",
-            message: message
-        });
-
-        // get llm response
         const response = await getChatCompletion(message);
 
-        // create system message
-        const systemMessage = new Message({
-            conversationId: conversationId,
-            role: "system",
-            message: response
-        })
-
         convo.messages.push({
-            userMessage: userMessage._id,
-            systemResponse: systemMessage._id
+            userMessage: message,
+            systemResponse: response
         })
 
-        await userMessage.save();
-        await systemMessage.save();
         await convo.save();
         return res.status(200).json({ message: response });
 
@@ -74,4 +55,20 @@ async function handleUserMessage(req, res) {
     }
 }
 
-export { handleUserMessage, createNewConversation };  
+async function getAllChatDetails(req, res) {
+    const token = req.cookies?.accessToken;
+    const userId = req.user.userId;
+    if (!token || !userId) {
+        return res.status(401).json({error: "unauthenticated"});
+    }
+
+    // Fetch chat details from the database
+    try {
+        const chatDetails = await Conversation.find({ userId });
+        return res.status(200).json({ chatDetails });
+    } catch (error) {
+        return res.status(500).json({ error: "Internal server error", message: error.message });
+    }
+
+}
+export { handleUserMessage, createNewConversation, getAllChatDetails };  

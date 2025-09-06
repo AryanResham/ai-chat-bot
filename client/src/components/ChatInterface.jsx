@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useLoaderData } from "react-router";
+import ChatInterfaceHeader from "./ChatInterfaceHeader";
 
 // Mock data for conversations
+
 const mockConversations = [
   {
     id: 1,
@@ -25,7 +28,9 @@ const mockConversations = [
 ];
 
 export default function ChatInterface({ isDarkMode, setIsDarkMode }) {
-  const [conversations, setConversations] = useState(mockConversations);
+  const data = useLoaderData();
+
+  const [conversations, setConversations] = useState(data.chats.chatDetails);
   const [currentChat, setCurrentChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
@@ -33,13 +38,13 @@ export default function ChatInterface({ isDarkMode, setIsDarkMode }) {
   // Handle new conversation
   const startNewConversation = () => {
     const newConv = {
-      id: Date.now(),
+      _id: Date.now(),
       title: "New Conversation",
-      lastMessage: "",
-      timestamp: new Date().toISOString().split("T")[0],
+      length: 0,
     };
+    console.log(newConv);
     setConversations([newConv, ...conversations]);
-    setCurrentChat(newConv.id);
+    setCurrentChat(newConv._id);
     setMessages([]);
   };
 
@@ -74,43 +79,48 @@ export default function ChatInterface({ isDarkMode, setIsDarkMode }) {
     }
   };
 
+  /*
+{
+            "_id": "68b9e49175d97e305dab9a86",
+            "userId": "68b9e44175d97e305dab9a82",
+            "messages": [
+                {
+                    "userMessage": "Hello how are u",
+                    "systemResponse": "I'm just a computer program, so I don't have feelings, but thanks for asking. How can I help you?",
+                    "_id": "68b9e4daf65df288f76b923a"
+                },
+                {
+                    "userMessage": "india is?",
+                    "systemResponse": "A country in South Asia."
+                }
+            ],
+            "title": "Chat #1",
+            "createdAt": "2025-09-04T19:12:17.137Z",
+            "updatedAt": "2025-09-04T19:15:01.502Z",
+            "__v": 2
+        },
+
+*/
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex">
       {/* Sidebar */}
       <div className="w-80 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col shadow-lg">
         {/* Header */}
-        <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold text-slate-800 dark:text-white">
-              Conversations
-            </h1>
-            <button
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className="relative inline-flex h-6 w-11 items-center rounded-full bg-slate-200 dark:bg-emerald-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  isDarkMode ? "translate-x-6" : "translate-x-1"
-                }`}
-              />
-            </button>
-          </div>
-          <button
-            onClick={startNewConversation}
-            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] hover:shadow-md"
-          >
-            + New Chat
-          </button>
-        </div>
+        <ChatInterfaceHeader
+          isDarkMode={isDarkMode}
+          setIsDarkMode={setIsDarkMode}
+          startNewConversation={startNewConversation}
+        />
 
         {/* Conversations List */}
         <div className="flex-1 overflow-y-auto p-2">
           {conversations.map((conv) => (
             <div
-              key={conv.id}
-              onClick={() => setCurrentChat(conv.id)}
+              key={conv._id}
+              onClick={() => setCurrentChat(conv._id)}
               className={`p-3 m-1 rounded-lg cursor-pointer transition-all duration-200 hover:scale-[1.02] ${
-                currentChat === conv.id
+                currentChat === conv._id
                   ? "bg-emerald-50 dark:bg-emerald-900/30 border-l-4 border-emerald-500 shadow-sm"
                   : "hover:bg-slate-50 dark:hover:bg-slate-700/50"
               }`}
@@ -119,7 +129,7 @@ export default function ChatInterface({ isDarkMode, setIsDarkMode }) {
                 {conv.title}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-1">
-                {conv.lastMessage}
+                {conv.messages.length}
               </p>
             </div>
           ))}

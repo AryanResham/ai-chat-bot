@@ -1,17 +1,15 @@
 import mongoose from 'mongoose';
 
-const turnSchema = new mongoose.Schema(
+const messageSchema = new mongoose.Schema(
   {
     userMessage: { 
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: "Message" 
+      type: String, 
     },
     systemResponse: { 
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: "Message"
+      type: String, 
     },
-  },
-  { _id: false }
+    _id: false 
+  }
 );
 
 const conversationSchema = new mongoose.Schema(
@@ -25,7 +23,7 @@ const conversationSchema = new mongoose.Schema(
         required: true 
     },
     messages: { 
-        type: [turnSchema], 
+        type: [messageSchema], 
         default: [] 
     }
   },
